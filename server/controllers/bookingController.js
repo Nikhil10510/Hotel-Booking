@@ -136,3 +136,27 @@ export const getHotelBookings = async (req, res) => {
         res.json({ success: false, message: "Failed to fetch bookings" });
     }
 };
+
+// API to pay for a booking - POST /api/bookings/pay
+export const payBooking = async (req, res) => {
+    try {
+        const { bookingId } = req.body;
+        if (!req.user) {
+            return res.status(401).json({ success: false, message: "User profile not found. Please log in again." });
+        }
+        const user = req.user._id;
+
+        const booking = await Booking.findOne({ _id: bookingId, user });
+        if (!booking) {
+            return res.json({ success: false, message: "Booking not found" });
+        }
+
+        booking.isPaid = true;
+        await booking.save();
+
+        res.json({ success: true, message: "Payment Successful" });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+};
+

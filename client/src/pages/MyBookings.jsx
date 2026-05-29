@@ -23,6 +23,21 @@ const MyBookings = () => {
         }
     }
 
+    const handlePayment=async(bookingId)=>{
+        try {
+            const {data}=await axios.post('/api/bookings/pay',{bookingId},{ headers: { Authorization: `Bearer ${await getToken()}` } })
+            if(data.success){
+                toast.success(data.message)
+                fetchUserBookings()
+            }
+            else{
+                toast.error(data.message)
+            }
+        } catch (error) {
+            toast.error(error.message)
+        }
+    }
+
     useEffect(()=>{
         if(user){
             fetchUserBookings()
@@ -84,7 +99,7 @@ const MyBookings = () => {
                         </p>
                      </div>
                      {!bookings.isPaid && (
-                        <button className='px-4 py-1.5 mt-4 text-xs border border-gray-400 rounded-full
+                        <button onClick={()=>handlePayment(bookings._id)} className='px-4 py-1.5 mt-4 text-xs border border-gray-400 rounded-full
                         hover:bg-gray-50 transition-all cursor-pointer'>Pay Now</button>
                      )}
                 </div>
