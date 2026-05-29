@@ -1,15 +1,16 @@
 import mongoose from "mongoose";
 
-mongoose.connection.once('connected', () => 
-    console.log("Database Connected")
-);
 
 const connectDB = async () => {
     try {
+        mongoose.connection.on('connected', () =>
+            console.log("Database Connected")
+        );
         await mongoose.connect(`${process.env.MONGODB_URI}/hotel-booking`);
     } catch (error) {
-        console.error("Failed to connect to MongoDB:", error);
+        console.error(error.message);
     }
 };
+
 
 export default connectDB;

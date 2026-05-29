@@ -1,31 +1,34 @@
-
-
 // GET /api/user
 export const getUserData = async (req, res) => {
     try {
-        const role = req.user.role
-        const recentSearchedCities = req.user.recentSearchedCities
-        res.json({ success: true, role, recentSearchedCities })
+        if (!req.user) return res.status(401).json({ success: false, message: "User not found" });
+        const { role, recentSearchedCities } = req.user;
+        res.json({ success: true, role, recentSearchedCities });
     } catch (error) {
-        res.json({ success: false, message: error.message })
+        res.status(500).json({ success: false, message: error.message });
     }
 }
 
 // POST /api/user/recent-search
 export const storeRecentSearchedCities = async (req, res) => {
     try {
-        const { recentSearchedCity } = req.body
-        const user = await req.user
-        if (user.recentSearchedCities.length < 3) {
-            user.recentSearchedCities.push(recentSearchedCity)
-        } else {
-            user.recentSearchedCities.shift()
-            user.recentSearchedCities.push(recentSearchedCity)
+        const { recentSearchedCity } = req.body;
+        const user = req.user;
+        if (!user) return res.status(401).json({ success: false, message: "User not found" });
+        if (!recentSearchedCity) return res.status(400).json({ success: false, message: "City is required" });
+
+        // Optional: Prevent duplicates and keep order (most recent at end)
+        if (user.recentSearchedCities.includes(recentSearchedCity)) {
+            user.recentSearchedCities = user.recentSearchedCities.filter(city => city !== recentSearchedCity);
         }
-        await user.save()
-        res.json({ success: true, message: "City Added" })
+        user.recentSearchedCities.push(recentSearchedCity);
+        if (user.recentSearchedCities.length > 3) {
+            user.recentSearchedCities.shift(); // keep only last 3
+        }
+
+        await user.save();
+        res.status(201).json({ success: true, message: "City Added" });
     } catch (error) {
-        res.json({ success: false, message: error.message })
+        res.status(500).json({ success: false, message: error.message });
     }
 }
-
