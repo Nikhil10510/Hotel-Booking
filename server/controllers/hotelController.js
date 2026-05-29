@@ -4,6 +4,10 @@ import User from "../models/User.js";
 export const registerHotel = async (req, res) => {
     try {
         const { name, address, contact, city } = req.body;
+        
+        if (!req.user) {
+            return res.status(401).json({ success: false, message: "User profile not found. Please log in again." });
+        }
         const owner = req.user._id;
 
         if (!name || !address || !contact || !city) {

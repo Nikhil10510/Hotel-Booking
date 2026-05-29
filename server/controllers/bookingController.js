@@ -37,6 +37,10 @@ export const checkAvailabilityAPI = async (req, res) => {
 export const createBooking = async (req, res) => {
     try {
         const { room, checkInDate, checkOutDate, guests } = req.body;
+        
+        if (!req.user) {
+            return res.status(401).json({ success: false, message: "User profile not found. Please log in again." });
+        }
         const user = req.user._id;
 
         // Check availability first
@@ -100,6 +104,9 @@ export const createBooking = async (req, res) => {
 // GET /api/bookings/user
 export const getUserBookings = async (req, res) => {
     try {
+        if (!req.user) {
+            return res.status(401).json({ success: false, message: "User profile not found. Please log in again." });
+        }
         const user = req.user._id; // FIXED
         const bookings = await Booking.find({ user })
             .populate("room hotel")

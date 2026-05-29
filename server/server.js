@@ -1,5 +1,15 @@
 import express from "express";
 import "dotenv/config";
+
+// Fail-fast checks for critical environment variables on startup
+const requiredEnvVars = ["MONGODB_URI", "CLERK_SECRET_KEY", "CLERK_PUBLISHABLE_KEY"];
+for (const envVar of requiredEnvVars) {
+    if (!process.env[envVar]) {
+        console.error(`❌ CRITICAL ERROR: Environment variable "${envVar}" is missing!`);
+        process.exit(1);
+    }
+}
+
 import cors from "cors";
 import connectDB from "./configs/db.js";
 import connectCloudinary from "./configs/cloudinary.js";
